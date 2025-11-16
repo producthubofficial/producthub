@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProductHub - Professional E-Commerce Management System</title>
+    <meta name="description" content="Complete product management and order tracking system">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4bb543;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        nav a:hover, nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .section {
+            padding: 60px 0;
+            flex: 1;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2rem;
+            color: var(--dark);
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            outline: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            height: 200px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 3rem;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .product-description {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #3d8b37;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: rgba(75, 181, 67, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(75, 181, 67, 0.2);
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .close:hover {
+            color: var(--danger);
+        }
+
+        .admin-login {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .login-icon {
+            text-align: center;
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle .form-control {
+            padding-right: 40px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .order-form {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #eee;
+        }
+
+        .order-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+            text-align: right;
+            margin-top: 10px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: rgba(75, 181, 67, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        /* File Upload Styles */
+        .file-upload-container {
+            margin-bottom: 20px;
+        }
+
+        .file-upload-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background-color: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: var(--border-radius);
+            color: var(--gray);
+            font-weight: 500;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .file-upload-button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .file-upload-button.has-file {
+            border-color: var(--success);
+            color: var(--success);
+            background-color: rgba(75, 181, 67, 0.05);
+        }
+
+        .file-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .file-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .upload-help {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* Admin Panel Header Styles */
+        .admin-panel-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .admin-header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .admin-main-title {
+            text-align: center;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .admin-actions-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .admin-action-btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Updated Footer - Removed Extra Links */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0 20px 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links a.admin-link {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .footer-links a.admin-link:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .copyright {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                text-align: center;
+                border-bottom: 1px solid #ddd;
+                border-left: 3px solid transparent;
+            }
+
+            .tab.active {
+                border-bottom: 1px solid #ddd;
+                border-left: 3px solid var(--primary);
+            }
+
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .admin-actions-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .admin-action-btn {
+                width: 200px;
+                justify-content: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .footer-links a {
+                display: block;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header - Admin Link Removed -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>ProductHub</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active" data-tab="user-view">Products</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- User View -->
+        <section class="section" id="user-view">
+            <div class="container">
+                <h2 class="section-title">Our Products</h2>
+                <div class="grid" id="products-grid">
+                    <!-- Products will be dynamically added here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Login -->
+        <section class="section hidden" id="admin-login">
+            <div class="container">
+                <div class="admin-login">
+                    <div class="card">
+                        <div class="login-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="card-header">
+                            <h3 class="card-title">Admin Login</h3>
+                        </div>
+                        <form id="login-form">
+                            <div class="form-group password-toggle">
+                                <label for="admin-password" class="form-label">Password</label>
+                                <input type="password" id="admin-password" class="form-control" required>
+                                <button type="button" class="toggle-password" id="toggle-login-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <small class="form-text" style="color: var(--gray); margin-top: 5px;">
+                                    Default password: admin123
+                                </small>
+                            </div>
+                            <button type="submit" class="btn btn-success" style="width: 100%;">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Panel -->
+        <section class="section hidden" id="admin-panel">
+            <div class="container">
+                <!-- Admin Panel Header with buttons at bottom -->
+                <div class="admin-panel-header">
+                    <div class="admin-header-content">
+                        <h2 class="admin-main-title">Admin Dashboard</h2>
+                        <div class="admin-actions-container">
+                            <button class="btn btn-outline admin-action-btn" style="color: white; border-color: white;" id="change-password-btn">
+                                <i class="fas fa-key"></i> Change Password
+                            </button>
+                            <button class="btn btn-outline admin-action-btn" style="color: white; border-color: white;" id="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-products">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-orders-value">Rs 0</div>
+                        <div class="stat-label">Completed Orders Value</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-orders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" data-tab="add-product">Add Product</div>
+                    <div class="tab" data-tab="manage-products">Manage Products</div>
+                    <div class="tab" data-tab="view-orders">View Orders</div>
+                    <div class="tab" data-tab="admin-settings">Admin Settings</div>
+                </div>
+
+                <!-- Add Product Tab -->
+                <div class="tab-content active" id="add-product">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Add New Product</h3>
+                        </div>
+                        <form id="add-product-form">
+                            <div class="form-group">
+                                <label for="product-name" class="form-label">Product Name</label>
+                                <input type="text" id="product-name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-description" class="form-label">Description</label>
+                                <textarea id="product-description" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-price" class="form-label">Price (PKR)</label>
+                                <input type="number" id="product-price" class="form-control" min="0" step="0.01" required>
+                            </div>
+                            
+                            <!-- File Upload Section -->
+                            <div class="file-upload-container">
+                                <label class="file-upload-label">Product Image</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="product-image-upload" class="file-upload-input" accept="image/*">
+                                    <div class="file-upload-button" id="file-upload-button">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Choose Image File</span>
+                                    </div>
+                                </div>
+                                <div class="upload-help">Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)</div>
+                                <div class="file-preview" id="file-preview"></div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">Add Product</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Manage Products Tab -->
+                <div class="tab-content" id="manage-products">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">All Products</h3>
+                            <button class="btn btn-danger" id="delete-all-btn">Delete All Products</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Price (PKR)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table">
+                                    <!-- Products will be dynamically added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Orders Tab -->
+                <div class="tab-content" id="view-orders">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Customer Orders</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer Name</th>
+                                        <th>Products</th>
+                                        <th>Total (PKR)</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table">
+                                    <!-- Orders will be dynamically added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Settings Tab -->
+                <div class="tab-content" id="admin-settings">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Change Admin Password</h3>
+                        </div>
+                        <form id="change-password-form">
+                            <div class="form-group password-toggle">
+                                <label for="current-password" class="form-label">Current Password</label>
+                                <input type="password" id="current-password" class="form-control" required>
+                                <button type="button" class="toggle-password" data-target="current-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-group password-toggle">
+                                <label for="new-password" class="form-label">New Password</label>
+                                <input type="password" id="new-password" class="form-control" required>
+                                <button type="button" class="toggle-password" data-target="new-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-group password-toggle">
+                                <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                <input type="password" id="confirm-password" class="form-control" required>
+                                <button type="button" class="toggle-password" data-target="confirm-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <button type="submit" class="btn btn-success">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer - Only Admin Link Remains -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-cube"></i>
+                    <span>ProductHub</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="admin-link" data-tab="admin-login">Admin Panel</a>
+                </div>
+                <div class="copyright">
+                    &copy; 2023 ProductHub. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- All Modals Here -->
+    <!-- Edit Product Modal -->
+    <div class="modal" id="edit-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Product</h3>
+                <button class="close">&times;</button>
+            </div>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit-product-id">
+                <div class="form-group">
+                    <label for="edit-product-name" class="form-label">Product Name</label>
+                    <input type="text" id="edit-product-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-product-description" class="form-label">Description</label>
+                    <textarea id="edit-product-description" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-product-price" class="form-label">Price (PKR)</label>
+                    <input type="number" id="edit-product-price" class="form-control" min="0" step="0.01" required>
+                </div>
+                
+                <!-- File Upload Section for Edit -->
+                <div class="file-upload-container">
+                    <label class="file-upload-label">Product Image</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="edit-product-image-upload" class="file-upload-input" accept="image/*">
+                        <div class="file-upload-button" id="edit-file-upload-button">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Change Image</span>
+                        </div>
+                    </div>
+                    <div class="upload-help">Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)</div>
+                    <div class="file-preview" id="edit-file-preview"></div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">Update Product</button>
+                    <button type="button" class="btn btn-outline" id="cancel-edit">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Product Modal -->
+    <div class="modal" id="order-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Place Order</h3>
+                <button class="close">&times;</button>
+            </div>
+            <form id="order-product-form">
+                <input type="hidden" id="order-product-id">
+                <div class="order-info">
+                    <h4 id="order-product-name"></h4>
+                    <p id="order-product-description"></p>
+                    <div class="product-price" id="order-product-price"></div>
+                </div>
+                <div class="form-group">
+                    <label for="customer-name" class="form-label">Your Name</label>
+                    <input type="text" id="customer-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-email" class="form-label">Email</label>
+                    <input type="email" id="customer-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-phone" class="form-label">Phone Number</label>
+                    <input type="tel" id="customer-phone" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-address" class="form-label">Delivery Address</label>
+                    <textarea id="customer-address" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="order-quantity" class="form-label">Quantity</label>
+                    <input type="number" id="order-quantity" class="form-control" min="1" value="1" required>
+                </div>
+                <div class="order-total">
+                    Total: <span id="order-total-price">Rs 0</span>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">Place Order</button>
+                    <button type="button" class="btn btn-outline" id="cancel-order">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="delete-confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Deletion</h3>
+                <button class="close">&times;</button>
+            </div>
+            <div class="form-group">
+                <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="confirm-delete">Delete</button>
+                <button class="btn btn-outline" id="cancel-delete">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="change-password-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Change Admin Password</h3>
+                <button class="close">&times;</button>
+            </div>
+            <form id="change-password-modal-form">
+                <div class="form-group password-toggle">
+                    <label for="modal-current-password" class="form-label">Current Password</label>
+                    <input type="password" id="modal-current-password" class="form-control" required>
+                    <button type="button" class="toggle-password" data-target="modal-current-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="form-group password-toggle">
+                    <label for="modal-new-password" class="form-label">New Password</label>
+                    <input type="password" id="modal-new-password" class="form-control" required>
+                    <button type="button" class="toggle-password" data-target="modal-new-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="form-group password-toggle">
+                    <label for="modal-confirm-password" class="form-label">Confirm New Password</label>
+                    <input type="password" id="modal-confirm-password" class="form-control" required>
+                    <button type="button" class="toggle-password" data-target="modal-confirm-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">Change Password</button>
+                    <button type="button" class="btn btn-outline" id="cancel-password-change">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://bqwfktlndipqendndeue.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxd2ZrdGxuZGlwcWVuZG5kZXVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMzkzNDksImV4cCI6MjA3ODgxNTM0OX0.gRxJ1WjD72Mui2UyQFuZ4nDvAdP1Mg3WfMbyg3ta1ZM';
+
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Empty products array - will be loaded from Supabase
+        let products = [];
+
+        // Orders array - will be loaded from Supabase
+        let orders = [];
+
+        // Admin password - stored in localStorage if changed
+        let adminPassword = localStorage.getItem('adminPassword') || "admin123";
+
+        // DOM Elements
+        const userViewSection = document.getElementById('user-view');
+        const adminLoginSection = document.getElementById('admin-login');
+        const adminPanelSection = document.getElementById('admin-panel');
+        const productsGrid = document.getElementById('products-grid');
+        const productsTable = document.getElementById('products-table');
+        const ordersTable = document.getElementById('orders-table');
+        const addProductForm = document.getElementById('add-product-form');
+        const editProductForm = document.getElementById('edit-product-form');
+        const orderProductForm = document.getElementById('order-product-form');
+        const loginForm = document.getElementById('login-form');
+        const changePasswordForm = document.getElementById('change-password-form');
+        const changePasswordModalForm = document.getElementById('change-password-modal-form');
+        const editProductModal = document.getElementById('edit-product-modal');
+        const orderProductModal = document.getElementById('order-product-modal');
+        const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+        const changePasswordModal = document.getElementById('change-password-modal');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const cancelOrderBtn = document.getElementById('cancel-order');
+        const closeModalBtns = document.querySelectorAll('.close');
+        const logoutBtn = document.getElementById('logout-btn');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const deleteAllBtn = document.getElementById('delete-all-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        const cancelPasswordChangeBtn = document.getElementById('cancel-password-change');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const navLinks = document.querySelectorAll('nav a');
+        const passwordToggleButtons = document.querySelectorAll('.toggle-password');
+        const orderQuantityInput = document.getElementById('order-quantity');
+        
+        // File upload elements
+        const productImageUpload = document.getElementById('product-image-upload');
+        const fileUploadButton = document.getElementById('file-upload-button');
+        const filePreview = document.getElementById('file-preview');
+        const editProductImageUpload = document.getElementById('edit-product-image-upload');
+        const editFileUploadButton = document.getElementById('edit-file-upload-button');
+        const editFilePreview = document.getElementById('edit-file-preview');
+        
+        // Stats elements
+        const totalProductsEl = document.getElementById('total-products');
+        const totalOrdersValueEl = document.getElementById('total-orders-value');
+        const totalOrdersEl = document.getElementById('total-orders');
+
+        // Variables for tracking deletion and ordering
+        let productToDelete = null;
+        let productToOrder = null;
+        let currentProductImage = null;
+        let editProductImage = null;
+
+        // Initialize the application
+        async function init() {
+            await loadProducts();
+            await loadOrders();
+            updateStats();
+            setupEventListeners();
+        }
+
+        // Load products from Supabase
+        async function loadProducts() {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error loading products:', error);
+                    showAlert('Error loading products', 'danger');
+                    return;
+                }
+
+                products = data || [];
+                renderProducts();
+                renderProductsTable();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showAlert('Error loading products', 'danger');
+            }
+        }
+
+        // Load orders from Supabase
+        async function loadOrders() {
+            try {
+                const { data, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error loading orders:', error);
+                    showAlert('Error loading orders', 'danger');
+                    return;
+                }
+
+                orders = data || [];
+                if (document.getElementById('view-orders').classList.contains('active')) {
+                    renderOrdersTable();
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showAlert('Error loading orders', 'danger');
+            }
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Navigation - Only Products link in header now
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tab = e.target.getAttribute('data-tab');
+                    
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    if (tab === 'user-view') {
+                        userViewSection.classList.remove('hidden');
+                        adminLoginSection.classList.add('hidden');
+                        adminPanelSection.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Footer Admin Link
+            const footerAdminLink = document.querySelector('footer a[data-tab="admin-login"]');
+            if (footerAdminLink) {
+                footerAdminLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    userViewSection.classList.add('hidden');
+                    adminLoginSection.classList.remove('hidden');
+                    adminPanelSection.classList.add('hidden');
+                    
+                    // Update active states
+                    navLinks.forEach(l => l.classList.remove('active'));
+                });
+            }
+
+            // Tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId) {
+                            content.classList.add('active');
+                            if (content.id === 'view-orders') {
+                                renderOrdersTable();
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Add product form
+            addProductForm.addEventListener('submit', handleAddProduct);
+
+            // Edit product form
+            editProductForm.addEventListener('submit', handleEditProduct);
+
+            // Order product form
+            orderProductForm.addEventListener('submit', handleOrderProduct);
+
+            // Order quantity change
+            orderQuantityInput.addEventListener('input', updateOrderTotal);
+
+            // Login form
+            loginForm.addEventListener('submit', handleLogin);
+
+            // Change password forms
+            changePasswordForm.addEventListener('submit', handleChangePassword);
+            changePasswordModalForm.addEventListener('submit', handleChangePassword);
+
+            // Change password button
+            changePasswordBtn.addEventListener('click', () => {
+                changePasswordModal.style.display = 'flex';
+            });
+
+            // Logout button
+            logoutBtn.addEventListener('click', handleLogout);
+
+            // Delete all button
+            deleteAllBtn.addEventListener('click', handleDeleteAll);
+
+            // File upload handlers
+            productImageUpload.addEventListener('change', handleFileUpload);
+            editProductImageUpload.addEventListener('change', handleEditFileUpload);
+
+            // Modal controls
+            cancelEditBtn.addEventListener('click', () => {
+                editProductModal.style.display = 'none';
+            });
+
+            cancelOrderBtn.addEventListener('click', () => {
+                orderProductModal.style.display = 'none';
+            });
+
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteConfirmModal.style.display = 'none';
+            });
+
+            cancelPasswordChangeBtn.addEventListener('click', () => {
+                changePasswordModal.style.display = 'none';
+            });
+
+            confirmDeleteBtn.addEventListener('click', handleConfirmDelete);
+
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.target.closest('.modal').style.display = 'none';
+                });
+            });
+
+            // Password toggle buttons
+            passwordToggleButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = button.getAttribute('data-target') || 'admin-password';
+                    const passwordInput = document.getElementById(targetId);
+                    const icon = button.querySelector('i');
+                    
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === editProductModal) {
+                    editProductModal.style.display = 'none';
+                }
+                if (e.target === orderProductModal) {
+                    orderProductModal.style.display = 'none';
+                }
+                if (e.target === deleteConfirmModal) {
+                    deleteConfirmModal.style.display = 'none';
+                }
+                if (e.target === changePasswordModal) {
+                    changePasswordModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Handle file upload for add product
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showAlert('Please select a valid image file (JPG, PNG, GIF, WEBP)', 'danger');
+                    return;
+                }
+
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert('File size must be less than 5MB', 'danger');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentProductImage = e.target.result;
+                    filePreview.innerHTML = `
+                        <img src="${currentProductImage}" alt="Preview">
+                        <div class="file-name">${file.name}</div>
+                    `;
+                    fileUploadButton.classList.add('has-file');
+                    fileUploadButton.innerHTML = `
+                        <i class="fas fa-check"></i>
+                        <span>Image Selected</span>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Handle file upload for edit product
+        function handleEditFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showAlert('Please select a valid image file (JPG, PNG, GIF, WEBP)', 'danger');
+                    return;
+                }
+
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert('File size must be less than 5MB', 'danger');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editProductImage = e.target.result;
+                    editFilePreview.innerHTML = `
+                        <img src="${editProductImage}" alt="Preview">
+                        <div class="file-name">${file.name}</div>
+                    `;
+                    editFileUploadButton.classList.add('has-file');
+                    editFileUploadButton.innerHTML = `
+                        <i class="fas fa-check"></i>
+                        <span>Image Selected</span>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('admin-password').value;
+            
+            if (password === adminPassword) {
+                adminLoginSection.classList.add('hidden');
+                adminPanelSection.classList.remove('hidden');
+                
+                showAlert('Login successful!', 'success');
+            } else {
+                showAlert('Invalid password! Please try again.', 'danger');
+            }
+            
+            loginForm.reset();
+        }
+
+        // Handle logout
+        function handleLogout() {
+            adminPanelSection.classList.add('hidden');
+            userViewSection.classList.remove('hidden');
+            
+            showAlert('Logged out successfully!', 'success');
+        }
+
+        // Handle password change
+        function handleChangePassword(e) {
+            e.preventDefault();
+            
+            let currentPassword, newPassword, confirmPassword;
+            
+            // Determine which form was submitted (modal or tab)
+            if (e.target.id === 'change-password-modal-form') {
+                currentPassword = document.getElementById('modal-current-password').value;
+                newPassword = document.getElementById('modal-new-password').value;
+                confirmPassword = document.getElementById('modal-confirm-password').value;
+            } else {
+                currentPassword = document.getElementById('current-password').value;
+                newPassword = document.getElementById('new-password').value;
+                confirmPassword = document.getElementById('confirm-password').value;
+            }
+            
+            // Validate current password
+            if (currentPassword !== adminPassword) {
+                showAlert('Current password is incorrect!', 'danger');
+                return;
+            }
+            
+            // Validate new password
+            if (newPassword.length < 4) {
+                showAlert('New password must be at least 4 characters long!', 'danger');
+                return;
+            }
+            
+            // Check if passwords match
+            if (newPassword !== confirmPassword) {
+                showAlert('New passwords do not match!', 'danger');
+                return;
+            }
+            
+            // Update password
+            adminPassword = newPassword;
+            localStorage.setItem('adminPassword', adminPassword);
+            
+            // Show success message
+            showAlert('Password changed successfully!', 'success');
+            
+            // Reset forms
+            changePasswordForm.reset();
+            changePasswordModalForm.reset();
+            
+            // Close modal if it was open
+            changePasswordModal.style.display = 'none';
+        }
+
+        // Render products in user view
+        function renderProducts() {
+            productsGrid.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h3>No Products Available</h3>
+                        <p>Products will appear here once added by the administrator.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        ${product.image_url ? 
+                            `<img src="${product.image_url}" alt="${product.name}">` : 
+                            `<i class="fas fa-box"></i>`
+                        }
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">Rs ${parseFloat(product.price).toFixed(2)}</div>
+                        <div class="product-actions">
+                            <button class="btn btn-outline order-btn" data-id="${product.id}">Order Now</button>
+                        </div>
+                    </div>
+                `;
+                
+                productsGrid.appendChild(productCard);
+            });
+            
+            // Add event listeners to order buttons
+            document.querySelectorAll('.order-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.getAttribute('data-id'));
+                    openOrderModal(productId);
+                });
+            });
+        }
+
+        // Render products table in admin view
+        function renderProductsTable() {
+            productsTable.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-box-open"></i>
+                            <h3>No Products Available</h3>
+                            <p>Add your first product using the "Add Product" tab.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>
+                        ${product.image_url ? 
+                            `<img src="${product.image_url}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">` : 
+                            `<i class="fas fa-box" style="font-size: 1.5rem; color: #6c757d;"></i>`
+                        }
+                    </td>
+                    <td>${product.name}</td>
+                    <td>${product.description.substring(0, 50)}${product.description.length > 50 ? '...' : ''}</td>
+                    <td>Rs ${parseFloat(product.price).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-outline edit-btn" data-id="${product.id}">Edit</button>
+                        <button class="btn btn-danger delete-btn" data-id="${product.id}">Delete</button>
+                    </td>
+                `;
+                
+                productsTable.appendChild(row);
+            });
+            
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.getAttribute('data-id'));
+                    openEditModal(productId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.getAttribute('data-id'));
+                    openDeleteModal(productId);
+                });
+            });
+        }
+
+        // Render orders table in admin view
+        function renderOrdersTable() {
+            ordersTable.innerHTML = '';
+            
+            if (orders.length === 0) {
+                ordersTable.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>No Orders Yet</h3>
+                            <p>Customer orders will appear here once they place orders.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                
+                // Parse order data
+                const orderData = typeof order.order_data === 'string' ? JSON.parse(order.order_data) : order.order_data;
+                const productsList = orderData.products ? orderData.products.map(p => 
+                    `${p.name} (Qty: ${p.quantity})`
+                ).join(', ') : 'No products';
+                
+                // Format date
+                const orderDate = new Date(order.created_at).toLocaleDateString();
+                
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${order.customer_name}</td>
+                    <td>${productsList}</td>
+                    <td>Rs ${parseFloat(order.total_amount).toFixed(2)}</td>
+                    <td><span class="badge ${order.status === 'completed' ? 'badge-success' : 'badge-warning'}">${order.status}</span></td>
+                    <td>${orderDate}</td>
+                    <td>
+                        <button class="btn btn-outline complete-order-btn" data-id="${order.id}">Complete</button>
+                        <button class="btn btn-danger delete-order-btn" data-id="${order.id}">Delete</button>
+                    </td>
+                `;
+                
+                ordersTable.appendChild(row);
+            });
+            
+            // Add event listeners to order action buttons
+            document.querySelectorAll('.complete-order-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const orderId = parseInt(e.target.getAttribute('data-id'));
+                    completeOrder(orderId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const orderId = parseInt(e.target.getAttribute('data-id'));
+                    deleteOrder(orderId);
+                });
+            });
+        }
+
+        // Handle add product form submission
+        async function handleAddProduct(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            
+            if (!currentProductImage) {
+                showAlert('Please select a product image', 'danger');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .insert([
+                        {
+                            name: name,
+                            description: description,
+                            price: price,
+                            image_url: currentProductImage
+                        }
+                    ])
+                    .select();
+
+                if (error) {
+                    console.error('Error adding product:', error);
+                    showAlert('Error adding product', 'danger');
+                    return;
+                }
+
+                // Reload products from database
+                await loadProducts();
+                updateStats();
+                
+                // Show success message
+                showAlert('Product added successfully!', 'success');
+                
+                // Reset form
+                addProductForm.reset();
+                filePreview.innerHTML = '';
+                fileUploadButton.classList.remove('has-file');
+                fileUploadButton.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Choose Image File</span>
+                `;
+                currentProductImage = null;
+                productImageUpload.value = '';
+            } catch (error) {
+                console.error('Error adding product:', error);
+                showAlert('Error adding product', 'danger');
+            }
+        }
+
+        // Handle edit product form submission
+        async function handleEditProduct(e) {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('edit-product-id').value);
+            const name = document.getElementById('edit-product-name').value;
+            const description = document.getElementById('edit-product-description').value;
+            const price = parseFloat(document.getElementById('edit-product-price').value);
+            
+            try {
+                const updateData = {
+                    name: name,
+                    description: description,
+                    price: price,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Only update image if a new one was uploaded
+                if (editProductImage) {
+                    updateData.image_url = editProductImage;
+                }
+
+                const { error } = await supabase
+                    .from('products')
+                    .update(updateData)
+                    .eq('id', id);
+
+                if (error) {
+                    console.error('Error updating product:', error);
+                    showAlert('Error updating product', 'danger');
+                    return;
+                }
+
+                // Reload products from database
+                await loadProducts();
+                updateStats();
+                
+                // Show success message
+                showAlert('Product updated successfully!', 'success');
+                
+                // Close modal
+                editProductModal.style.display = 'none';
+                
+                // Reset edit image
+                editProductImage = null;
+                editFilePreview.innerHTML = '';
+                editFileUploadButton.classList.remove('has-file');
+                editFileUploadButton.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Change Image</span>
+                `;
+                editProductImageUpload.value = '';
+            } catch (error) {
+                console.error('Error updating product:', error);
+                showAlert('Error updating product', 'danger');
+            }
+        }
+
+        // Handle order product form submission
+        async function handleOrderProduct(e) {
+            e.preventDefault();
+            
+            const productId = parseInt(document.getElementById('order-product-id').value);
+            const quantity = parseInt(document.getElementById('order-quantity').value);
+            const customerName = document.getElementById('customer-name').value;
+            const customerEmail = document.getElementById('customer-email').value;
+            const customerPhone = document.getElementById('customer-phone').value;
+            const customerAddress = document.getElementById('customer-address').value;
+            
+            const product = products.find(p => p.id === productId);
+            
+            if (product) {
+                const orderData = {
+                    products: [{
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: quantity
+                    }],
+                    total: product.price * quantity
+                };
+
+                try {
+                    const { error } = await supabase
+                        .from('orders')
+                        .insert([
+                            {
+                                customer_name: customerName,
+                                customer_email: customerEmail,
+                                customer_phone: customerPhone,
+                                customer_address: customerAddress,
+                                total_amount: product.price * quantity,
+                                status: 'pending',
+                                order_data: orderData
+                            }
+                        ]);
+
+                    if (error) {
+                        console.error('Error creating order:', error);
+                        showAlert('Error creating order', 'danger');
+                        return;
+                    }
+
+                    // Reload orders from database
+                    await loadOrders();
+                    updateStats();
+                    
+                    // Show success message
+                    showAlert('Order placed successfully!', 'success');
+                    
+                    // Close modal
+                    orderProductModal.style.display = 'none';
+                    
+                    // Reset form
+                    orderProductForm.reset();
+                } catch (error) {
+                    console.error('Error creating order:', error);
+                    showAlert('Error creating order', 'danger');
+                }
+            }
+        }
+
+        // Open edit modal with product data
+        function openEditModal(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (product) {
+                document.getElementById('edit-product-id').value = product.id;
+                document.getElementById('edit-product-name').value = product.name;
+                document.getElementById('edit-product-description').value = product.description;
+                document.getElementById('edit-product-price').value = product.price;
+                
+                // Show current image if exists
+                if (product.image_url) {
+                    editFilePreview.innerHTML = `
+                        <img src="${product.image_url}" alt="Current Image">
+                        <div class="file-name">Current Image</div>
+                    `;
+                } else {
+                    editFilePreview.innerHTML = '';
+                }
+                
+                editProductModal.style.display = 'flex';
+            }
+        }
+
+        // Open order modal with product data
+        function openOrderModal(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (product) {
+                productToOrder = productId;
+                
+                document.getElementById('order-product-id').value = product.id;
+                document.getElementById('order-product-name').textContent = product.name;
+                document.getElementById('order-product-description').textContent = product.description;
+                document.getElementById('order-product-price').textContent = `Rs ${parseFloat(product.price).toFixed(2)}`;
+                
+                // Reset quantity and update total
+                document.getElementById('order-quantity').value = 1;
+                updateOrderTotal();
+                
+                orderProductModal.style.display = 'flex';
+            }
+        }
+
+        // Update order total based on quantity
+        function updateOrderTotal() {
+            const product = products.find(p => p.id === productToOrder);
+            const quantity = parseInt(document.getElementById('order-quantity').value) || 1;
+            
+            if (product) {
+                const total = product.price * quantity;
+                document.getElementById('order-total-price').textContent = `Rs ${total.toFixed(2)}`;
+            }
+        }
+
+        // Open delete confirmation modal
+        function openDeleteModal(productId) {
+            productToDelete = productId;
+            deleteConfirmModal.style.display = 'flex';
+        }
+
+        // Handle confirmed deletion
+        async function handleConfirmDelete() {
+            if (productToDelete) {
+                try {
+                    const { error } = await supabase
+                        .from('products')
+                        .delete()
+                        .eq('id', productToDelete);
+
+                    if (error) {
+                        console.error('Error deleting product:', error);
+                        showAlert('Error deleting product', 'danger');
+                        return;
+                    }
+
+                    // Reload products from database
+                    await loadProducts();
+                    updateStats();
+                    
+                    // Show success message
+                    showAlert('Product deleted successfully!', 'success');
+                    
+                    // Close modal
+                    deleteConfirmModal.style.display = 'none';
+                    productToDelete = null;
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    showAlert('Error deleting product', 'danger');
+                }
+            }
+        }
+
+        // Complete an order
+        async function completeOrder(orderId) {
+            try {
+                const { error } = await supabase
+                    .from('orders')
+                    .update({ status: 'completed' })
+                    .eq('id', orderId);
+
+                if (error) {
+                    console.error('Error completing order:', error);
+                    showAlert('Error completing order', 'danger');
+                    return;
+                }
+
+                // Reload orders from database
+                await loadOrders();
+                updateStats();
+                
+                // Show success message
+                showAlert('Order marked as completed!', 'success');
+            } catch (error) {
+                console.error('Error completing order:', error);
+                showAlert('Error completing order', 'danger');
+            }
+        }
+
+        // Delete an order
+        async function deleteOrder(orderId) {
+            if (confirm('Are you sure you want to delete this order?')) {
+                try {
+                    const { error } = await supabase
+                        .from('orders')
+                        .delete()
+                        .eq('id', orderId);
+
+                    if (error) {
+                        console.error('Error deleting order:', error);
+                        showAlert('Error deleting order', 'danger');
+                        return;
+                    }
+
+                    // Reload orders from database
+                    await loadOrders();
+                    updateStats();
+                    
+                    // Show success message
+                    showAlert('Order deleted successfully!', 'success');
+                } catch (error) {
+                    console.error('Error deleting order:', error);
+                    showAlert('Error deleting order', 'danger');
+                }
+            }
+        }
+
+        // Handle delete all products
+        async function handleDeleteAll() {
+            if (products.length === 0) {
+                showAlert('No products to delete!', 'danger');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete ALL products? This action cannot be undone.')) {
+                try {
+                    const { error } = await supabase
+                        .from('products')
+                        .delete()
+                        .neq('id', 0); // Delete all products
+
+                    if (error) {
+                        console.error('Error deleting all products:', error);
+                        showAlert('Error deleting all products', 'danger');
+                        return;
+                    }
+
+                    // Reload products from database
+                    await loadProducts();
+                    updateStats();
+                    
+                    // Show success message
+                    showAlert('All products deleted successfully!', 'success');
+                } catch (error) {
+                    console.error('Error deleting all products:', error);
+                    showAlert('Error deleting all products', 'danger');
+                }
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalProducts = products.length;
+            const totalOrdersCount = orders.length;
+            
+            // Calculate only completed orders value
+            const completedOrdersValue = orders
+                .filter(order => order.status === 'completed')
+                .reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
+            
+            totalProductsEl.textContent = totalProducts;
+            totalOrdersValueEl.textContent = `Rs ${completedOrdersValue.toFixed(2)}`;
+            totalOrdersEl.textContent = totalOrdersCount;
+        }
+
+        // Show alert message
+        function showAlert(message, type) {
+            // Remove existing alerts
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            // Create new alert
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            // Add alert to the appropriate section
+            if (adminPanelSection.classList.contains('hidden')) {
+                if (userViewSection.classList.contains('hidden')) {
+                    adminLoginSection.insertBefore(alert, adminLoginSection.firstChild);
+                } else {
+                    userViewSection.insertBefore(alert, userViewSection.firstChild);
+                }
+            } else {
+                adminPanelSection.insertBefore(alert, adminPanelSection.firstChild);
+            }
+            
+            // Remove alert after 3 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 3000);
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
